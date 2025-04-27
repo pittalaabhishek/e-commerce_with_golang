@@ -1,6 +1,9 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"encoding/json"
+	"gorm.io/gorm"
+)
 
 type Variant struct {
 	Color string `json:"color"`
@@ -15,6 +18,6 @@ type Product struct {
 	Quantity    int       `json:"quantity" gorm:"default:0"`
 	Price       float64   `json:"price" gorm:"not null"`
 	Image       string    `json:"image"`
-	Variants    []Variant `json:"variants" gorm:"type:jsonb"`
+	Variants    json.RawMessage `json:"variants" gorm:"type:jsonb"`
 	Reviews     []Review  `json:"reviews" gorm:"foreignKey:ProductID"`
 }

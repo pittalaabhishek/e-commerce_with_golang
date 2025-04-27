@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"encoding/json"
 	"e-commerce_with_golang/models"
 	"e-commerce_with_golang/database"
 
@@ -43,10 +44,28 @@ func (pc *ProductController) CreateProduct(c *gin.Context) {
 		return
 	}
 
-	if err := database.DB.Create(&product).Error; err != nil {
+	// Convert variants to JSONB-compatible format
+	variantsJSON, err := json.Marshal(product.Variants)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to process variants"})
+		return
+	}
+
+	// Create a new product with properly formatted variants
+	newProduct := models.Product{
+		Name:        product.Name,
+		Description: product.Description,
+		Category:    product.Category,
+		Quantity:    product.Quantity,
+		Price:       product.Price,
+		Image:       product.Image,
+		Variants:    variantsJSON,
+	}
+
+	if err := database.DB.Create(&newProduct).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, product)
+	c.JSON(http.StatusCreated, newProduct)
 }
