@@ -1,4 +1,4 @@
-package migrations
+package database
 
 import (
 	"e-commerce_with_golang/models"
