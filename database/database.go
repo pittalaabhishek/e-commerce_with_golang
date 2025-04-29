@@ -1,10 +1,10 @@
 package database
 
 import (
+	"e-commerce_with_golang/config"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"e-commerce_with_golang/config"
 )
 
 var DB *gorm.DB
