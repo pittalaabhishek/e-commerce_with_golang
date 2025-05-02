@@ -6,20 +6,20 @@ import (
     "github.com/gin-gonic/gin"
 )
 
-func SetupRoutes(productRepo domain.ProductRepository, reviewRepo domain.ReviewRepository) *gin.Engine {
-    r := gin.Default()
-
+func SetupRoutes(router *gin.Engine, productRepo domain.ProductRepository, reviewRepo domain.ReviewRepository, authMiddleware gin.HandlerFunc) {
     productController := controllers.NewProductController(productRepo)
     reviewController := controllers.NewReviewController(reviewRepo)
 
-    // Product routes
-    r.GET("/api/products", productController.GetProducts)
-    r.GET("/api/products/:id", productController.GetProduct)
-    r.POST("/api/products/create", productController.CreateProduct)
+    // Public routes (no authentication needed)
+    router.GET("/api/products", productController.GetProducts)
+    router.GET("/api/products/:id", productController.GetProduct)
+    router.GET("/api/products/:id/reviews", reviewController.GetReviews)
 
-    // Review routes
-    r.GET("/api/products/:id/reviews", reviewController.GetReviews)
-    r.POST("/api/products/:id/reviews/create", reviewController.CreateReview)
-
-    return r
+    // Protected routes (require authentication)
+    protected := router.Group("/api")
+    protected.Use(authMiddleware)
+    {
+        protected.POST("/products/create", productController.CreateProduct)
+        protected.POST("/products/:id/reviews/create", reviewController.CreateReview)
+    }
 }

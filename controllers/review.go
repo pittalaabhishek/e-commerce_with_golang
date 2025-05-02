@@ -31,7 +31,15 @@ func (rc *ReviewController) GetReviews(c *gin.Context) {
     c.JSON(http.StatusOK, reviews)
 }
 
+// Only modify the CreateReview method
 func (rc *ReviewController) CreateReview(c *gin.Context) {
+    // Get user ID from JWT
+    userID, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+        return
+    }
+
     productID, err := strconv.Atoi(c.Param("id"))
     if err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid product ID"})
@@ -44,7 +52,10 @@ func (rc *ReviewController) CreateReview(c *gin.Context) {
         return
     }
 
+    // Associate review with user and product
     review.ProductID = uint(productID)
+    review.UserID = uint(userID.(float64)) // JWT numbers are float64 by default
+
     if err := rc.reviewRepo.Create(&review); err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return

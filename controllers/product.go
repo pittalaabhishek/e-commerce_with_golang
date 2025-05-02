@@ -41,11 +41,21 @@ func (pc *ProductController) GetProduct(c *gin.Context) {
 }
 
 func (pc *ProductController) CreateProduct(c *gin.Context) {
+    // Get user ID from JWT
+    userID, exists := c.Get("userID")
+    if !exists {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+        return
+    }
+
     var product models.Product
     if err := c.ShouldBindJSON(&product); err != nil {
         c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
+
+    // Associate product with user
+    product.UserID = uint(userID.(float64)) // JWT numbers are float64 by default
 
     if err := pc.productRepo.Create(&product); err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
