@@ -13,6 +13,7 @@ type Variant struct {
 type Product struct {
     gorm.Model
     Name        string          `json:"name" gorm:"not null"`
+    UserID      uint 
     Description string          `json:"description"`
     Category    string          `json:"category"`
     Quantity    int             `json:"quantity" gorm:"default:0"`
